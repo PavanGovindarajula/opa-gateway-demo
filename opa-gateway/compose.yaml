@@ -1,0 +1,22 @@
+services:
+  opa:
+    image: openpolicyagent/opa:1.22.3
+    command: ["run", "--server", "--addr=0.0.0.0:8181", "/policy/tool_risk.rego"]
+    volumes:
+      - ./policy:/policy:ro
+  dry-run:
+    build: .
+    environment:
+      OPA_URL: http://opa:8181
+      GATEWAY_MODE: dry-run
+    ports:
+      - "127.0.0.1:8081:8080"
+    depends_on: [opa]
+  enforce:
+    build: .
+    environment:
+      OPA_URL: http://opa:8181
+      GATEWAY_MODE: enforce
+    ports:
+      - "127.0.0.1:8082:8080"
+    depends_on: [opa]
